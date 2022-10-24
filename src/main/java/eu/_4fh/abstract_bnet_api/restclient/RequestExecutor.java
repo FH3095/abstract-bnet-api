@@ -15,6 +15,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import eu._4fh.abstract_bnet_api.oauth2.BattleNetClient;
 import eu._4fh.abstract_bnet_api.oauth2.BattleNetRegion;
 
+/**
+ * Used to execute requests.
+ */
 @DefaultAnnotation(NonNull.class)
 public class RequestExecutor {
 	private final BattleNetClient client;
