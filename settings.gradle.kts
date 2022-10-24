@@ -1,2 +1,2 @@
 
-rootProject.name = "eu._4fh.abstract_bnet_api"
+rootProject.name = "abstract-bnet-api"

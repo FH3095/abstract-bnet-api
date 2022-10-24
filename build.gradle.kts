@@ -7,6 +7,10 @@ repositories {
     mavenCentral()
 }
 
+allprojects {
+    group = "eu.4fh"
+}
+
 java {
 	sourceCompatibility = JavaVersion.VERSION_11
 	targetCompatibility = JavaVersion.VERSION_11
