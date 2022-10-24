@@ -42,10 +42,22 @@ public abstract class AbstractBattleNetRequest<T> implements HttpRequest<T> {
 		return EmptyHttpRequestEntity.INSTANCE;
 	}
 
+	/**
+	 * This constructs the result from the json response from battle-net.
+	 */
 	protected abstract T convertJsonToObject(final JSONObject obj);
 
+	/**
+	 * This has to return the namespace prefix for the battle-net api. Currently
+	 * battle-net has the namespace-prefixes: static, dynamic and profile. This
+	 * has to return the one according to this request.
+	 */
 	protected abstract String getNamespacePrefix();
 
+	/**
+	 * If this returns true, the {@link RequestExecutor} will add the locale
+	 * automatically to the url.
+	 */
 	protected abstract boolean needsLocale();
 
 	@Override
