@@ -12,10 +12,17 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 /*package*/ class UserClient implements BattleNetClient {
 	private static final Duration ONE_MINUTE = new Duration(1, 0, 0, 1, 0);
 
+	private final BattleNetRegion region;
 	private OAuth2AccessToken token;
 
-	public UserClient(final OAuth2AccessToken token) {
+	public UserClient(final BattleNetRegion region, final OAuth2AccessToken token) {
+		this.region = region;
 		this.token = token;
+	}
+
+	@Override
+	public BattleNetRegion getRegion() {
+		return region;
 	}
 
 	@Override

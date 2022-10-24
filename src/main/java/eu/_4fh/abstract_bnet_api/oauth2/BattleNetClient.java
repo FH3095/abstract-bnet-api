@@ -7,6 +7,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 @DefaultAnnotation(NonNull.class)
 public interface BattleNetClient {
+	BattleNetRegion getRegion();
+
 	OAuth2AccessToken getAccessToken();
 
 	boolean isAccessTokenValid();

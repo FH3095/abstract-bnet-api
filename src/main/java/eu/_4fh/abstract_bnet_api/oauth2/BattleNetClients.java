@@ -25,9 +25,21 @@ import org.dmfs.rfc5545.Duration;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import eu._4fh.abstract_bnet_api.rest_client.RequestExecutor;
 
+/**
+ * This class can be used to get relevant BattleNetClients to create
+ * {@link RequestExecutor}s
+ * ({@link RequestExecutor#RequestExecutor(BattleNetClient, String)}).
+ */
 @DefaultAnnotation(NonNull.class)
 public class BattleNetClients {
+	/**
+	 * Class to remember relevant values from
+	 * {@link BattleNetClients#startUserAuthorizationProcess(String)}. This
+	 * class is intentionally Serializable to make it possible to remember this
+	 * values somewhere.
+	 */
 	public static class UserAuthorizationState implements Serializable {
 		private static final long serialVersionUID = -3419942940565666963L;
 
@@ -55,7 +67,7 @@ public class BattleNetClients {
 	public final String oAuthAuthRedirectTarget;
 	public final String oAuthScope;
 
-	private BattleNetClients(final String oAuthApiKey, final String oAuthApiSecret, final int oAuthDefaultTokenDuration,
+	public BattleNetClients(final String oAuthApiKey, final String oAuthApiSecret, final int oAuthDefaultTokenDuration,
 			final String oAuthRedirectTarget, final String oAuthScope) {
 		this.oAuthApiKey = oAuthApiKey;
 		this.oAuthApiSecret = oAuthApiSecret;
@@ -64,12 +76,16 @@ public class BattleNetClients {
 		this.oAuthScope = oAuthScope;
 	}
 
+	/**
+	 * Return a client for access to the battle net api. These client can only
+	 * be used to access data, that does not require an authorization code flow.
+	 */
 	public BattleNetClient getClient(final String regionStr) {
 		return getApiClient(BattleNetRegion.getRegion(regionStr));
 	}
 
 	private ApiClient getApiClient(final BattleNetRegion region) {
-		return regionClients.computeIfAbsent(region, r -> new ApiClient(createClient(r), oAuthScope));
+		return regionClients.computeIfAbsent(region, r -> new ApiClient(region, createClient(r), oAuthScope));
 	}
 
 	private OAuth2Client createClient(final BattleNetRegion region) {
@@ -85,21 +101,29 @@ public class BattleNetClients {
 				new BasicOAuth2ClientCredentials(oAuthApiKey, oAuthApiSecret), redirectTarget);
 	}
 
+	/**
+	 * Starts an authorization process, to access users data on their behalf.
+	 * The client should be redirected to the url given in
+	 * {@link UserAuthorizationState#getAuthorizationUrl()}.
+	 */
 	public UserAuthorizationState startUserAuthorizationProcess(final String regionStr) {
 		final OAuth2InteractiveGrant grant = new AuthorizationCodeGrant(
 				getApiClient(BattleNetRegion.getRegion(regionStr)).getClient(), new BasicScope(oAuthScope));
 		return new UserAuthorizationState(regionStr, grant.state(), grant.authorizationUrl());
 	}
 
+	/**
+	 * Finishes the authorization process.
+	 */
 	public BattleNetClient finishUserAuthorizationProcess(final UserAuthorizationState state, final String answerUrl) {
 		try {
+			final BattleNetRegion region = BattleNetRegion.getRegion(state.regionStr);
 			final HttpRequestExecutor executor = new HttpUrlConnectionExecutor();
-			final OAuth2InteractiveGrant grant = state.grantState
-					.grant(getApiClient(BattleNetRegion.getRegion(state.regionStr)).getClient());
+			final OAuth2InteractiveGrant grant = state.grantState.grant(getApiClient(region).getClient());
 			final OAuth2AccessToken token = grant.withRedirect(new LazyUri(new Precoded(answerUrl)))
 					.accessToken(executor);
 
-			return new UserClient(token);
+			return new UserClient(region, token);
 		} catch (ProtocolError | ProtocolException | IOException e) {
 			throw new RuntimeException(e);
 		}

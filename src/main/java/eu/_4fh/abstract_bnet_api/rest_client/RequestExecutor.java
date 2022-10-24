@@ -18,23 +18,25 @@ import eu._4fh.abstract_bnet_api.oauth2.BattleNetRegion;
 @DefaultAnnotation(NonNull.class)
 public class RequestExecutor {
 	private final BattleNetClient client;
-	private final BattleNetRegion region;
 	private final String locale;
 	private final HttpUrlConnectionExecutor executor;
 
-	public RequestExecutor(final BattleNetClient client, final BattleNetRegion battleNetRegion, String locale) {
+	public RequestExecutor(final BattleNetClient client, String locale) {
 		locale = locale.replace('-', '_');
-		if (!battleNetRegion.isAllowedLocale(locale.replace('_', '-'))) {
-			throw new IllegalArgumentException("Locale " + locale + " is not allowed for region " + battleNetRegion);
+		if (!client.getRegion().isAllowedLocale(locale.replace('_', '-'))) {
+			throw new IllegalArgumentException("Locale " + locale + " is not allowed for region " + client.getRegion());
 		}
 		executor = new HttpUrlConnectionExecutor();
 		this.client = client;
-		this.region = battleNetRegion;
 		this.locale = locale;
 	}
 
 	public <T> T executeRequest(final String path, final AbstractBattleNetRequest<T> request) {
+		if (!client.isAccessTokenValid()) {
+			throw new IllegalStateException("Access-Token is no longer valid");
+		}
 		try {
+			final BattleNetRegion region = client.getRegion();
 			final URI apiUri = URI.create(region.apiUrl);
 			final URI uri = new URI(apiUri.getScheme(), apiUri.getAuthority(), path,
 					"namespace=" + request.getNamespacePrefix() + "-" + region.toString()

@@ -25,14 +25,21 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 	private final Logger log = Logger.getLogger(this.getClass().getName());
 
+	private final BattleNetRegion region;
 	private final OAuth2Client client;
 	private @CheckForNull OAuth2AccessToken token;
 	private final String oAuthScope;
 
-	public ApiClient(final OAuth2Client client, final String oAuthScope) {
+	public ApiClient(final BattleNetRegion region, final OAuth2Client client, final String oAuthScope) {
+		this.region = region;
 		this.client = client;
 		this.oAuthScope = oAuthScope;
 		token = null;
+	}
+
+	@Override
+	public BattleNetRegion getRegion() {
+		return region;
 	}
 
 	public OAuth2Client getClient() {
