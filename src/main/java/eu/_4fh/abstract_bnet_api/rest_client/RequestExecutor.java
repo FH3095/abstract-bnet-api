@@ -32,9 +32,6 @@ public class RequestExecutor {
 	}
 
 	public <T> T executeRequest(final String path, final AbstractBattleNetRequest<T> request) {
-		if (!client.isAccessTokenValid()) {
-			throw new IllegalStateException("Access-Token is no longer valid");
-		}
 		try {
 			final BattleNetRegion region = client.getRegion();
 			final URI apiUri = URI.create(region.apiUrl);
