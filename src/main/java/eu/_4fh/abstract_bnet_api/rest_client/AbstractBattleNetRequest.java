@@ -24,7 +24,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 @DefaultAnnotation(NonNull.class)
-public abstract class AbstractBNetRequest<T> implements HttpRequest<T> {
+public abstract class AbstractBattleNetRequest<T> implements HttpRequest<T> {
 	protected final Logger log = Logger.getLogger(this.getClass().getName());
 
 	@Override
@@ -44,7 +44,9 @@ public abstract class AbstractBNetRequest<T> implements HttpRequest<T> {
 
 	protected abstract T convertJsonToObject(final JSONObject obj);
 
-	public abstract String getNamespacePrefix();
+	protected abstract String getNamespacePrefix();
+
+	protected abstract boolean needsLocale();
 
 	@Override
 	public HttpResponseHandler<T> responseHandler(HttpResponse response)

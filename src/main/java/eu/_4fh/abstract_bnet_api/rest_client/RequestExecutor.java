@@ -12,35 +12,36 @@ import org.dmfs.oauth2.client.http.decorators.BearerAuthenticatedRequest;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu._4fh.abstract_bnet_api.oauth2.ClientCache;
-import eu._4fh.abstract_bnet_api.oauth2.Region;
+import eu._4fh.abstract_bnet_api.oauth2.BattleNetClient;
+import eu._4fh.abstract_bnet_api.oauth2.BattleNetRegion;
 
 @DefaultAnnotation(NonNull.class)
 public class RequestExecutor {
-	private final ClientCache cache;
-	private final Region region;
+	private final BattleNetClient client;
+	private final BattleNetRegion region;
 	private final String locale;
 	private final HttpUrlConnectionExecutor executor;
 
-	public RequestExecutor(final ClientCache cache, final Region region, String locale) {
+	public RequestExecutor(final BattleNetClient client, final BattleNetRegion battleNetRegion, String locale) {
 		locale = locale.replace('-', '_');
-		if (!region.isAllowedLocale(locale.replace('_', '-'))) {
-			throw new IllegalArgumentException("Locale " + locale + " is not allowed for region " + region);
+		if (!battleNetRegion.isAllowedLocale(locale.replace('_', '-'))) {
+			throw new IllegalArgumentException("Locale " + locale + " is not allowed for region " + battleNetRegion);
 		}
 		executor = new HttpUrlConnectionExecutor();
-		this.cache = cache;
-		this.region = region;
+		this.client = client;
+		this.region = battleNetRegion;
 		this.locale = locale;
 	}
 
-	public <T> T executeRequest(final String path, final AbstractBNetRequest<T> request, final boolean withLocale) {
+	public <T> T executeRequest(final String path, final AbstractBattleNetRequest<T> request) {
 		try {
 			final URI apiUri = URI.create(region.apiUrl);
-			final URI uri = new URI(apiUri.getScheme(), apiUri.getAuthority(), path, "namespace="
-					+ request.getNamespacePrefix() + "-" + region.toString() + (withLocale ? "&locale=" + locale : ""),
+			final URI uri = new URI(apiUri.getScheme(), apiUri.getAuthority(), path,
+					"namespace=" + request.getNamespacePrefix() + "-" + region.toString()
+							+ (request.needsLocale() ? "&locale=" + locale : ""),
 					null);
 			final HttpRequest<T> authenticatedRequest = new BearerAuthenticatedRequest<>(request,
-					cache.getAccessToken(region));
+					client.getAccessToken());
 			return executor.execute(uri, authenticatedRequest);
 		} catch (IOException | ProtocolError | ProtocolException | URISyntaxException e) {
 			throw new RuntimeException(e);

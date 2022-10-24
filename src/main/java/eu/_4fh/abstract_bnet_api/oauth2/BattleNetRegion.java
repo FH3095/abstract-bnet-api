@@ -10,10 +10,11 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
- * List of supported BNet Regions. Contains also supported Locales per Region.
+ * List of supported BNet Regions. Contains also supported Locales per
+ * BattleNetRegion.
  */
 @DefaultAnnotation(NonNull.class)
-public enum Region {
+public enum BattleNetRegion {
 	US("https://oauth.battle.net", "https://us.api.blizzard.com", Locale.US, new Locale("es", "MX"),
 			new Locale("pt", "BR")),
 	EU("https://oauth.battle.net", "https://eu.api.blizzard.com", Locale.UK, new Locale("es", "ES"), Locale.FRANCE,
@@ -25,7 +26,7 @@ public enum Region {
 	public final String apiUrl;
 	public final Set<Locale> locales;
 
-	public static Region getRegion(final String regionStr) {
+	public static BattleNetRegion getRegion(final String regionStr) {
 		switch (regionStr.toUpperCase(Locale.ROOT)) {
 		case "US":
 			return US;
@@ -40,7 +41,7 @@ public enum Region {
 		}
 	}
 
-	private Region(final String oauthUrl, final String apiUrl, final Locale... locales) {
+	private BattleNetRegion(final String oauthUrl, final String apiUrl, final Locale... locales) {
 		this.oauthUrl = oauthUrl;
 		this.apiUrl = apiUrl;
 		final Set<Locale> localesSet = ConcurrentHashMap.newKeySet(locales.length);
