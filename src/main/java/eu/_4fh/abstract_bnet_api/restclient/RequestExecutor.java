@@ -1,4 +1,4 @@
-package eu._4fh.abstract_bnet_api.rest_client;
+package eu._4fh.abstract_bnet_api.restclient;
 
 import java.io.IOException;
 import java.net.URI;

@@ -3,6 +3,9 @@ package eu._4fh.abstract_bnet_api.oauth2;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +28,7 @@ import org.dmfs.rfc5545.Duration;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import eu._4fh.abstract_bnet_api.rest_client.RequestExecutor;
+import eu._4fh.abstract_bnet_api.restclient.RequestExecutor;
 
 /**
  * This class can be used to get relevant BattleNetClients to create
@@ -60,6 +63,7 @@ public class BattleNetClients {
 	}
 
 	private final Map<BattleNetRegion, ApiClient> regionClients = new ConcurrentHashMap<>();
+	private final Map<BattleNetRegion, List<BattleNetClient>> userClients = new ConcurrentHashMap<>();
 
 	public final String oAuthApiKey;
 	public final String oAuthApiSecret;
@@ -123,9 +127,21 @@ public class BattleNetClients {
 			final OAuth2AccessToken token = grant.withRedirect(new LazyUri(new Precoded(answerUrl)))
 					.accessToken(executor);
 
+			final UserClient client = new UserClient(region, token);
+			userClients.computeIfAbsent(region, r -> Collections.synchronizedList(new LinkedList<>())).add(client);
+			cleanupUserClients();
 			return new UserClient(region, token);
 		} catch (ProtocolError | ProtocolException | IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public List<BattleNetClient> getUserClients(final String regionStr) {
+		cleanupUserClients();
+		return userClients.getOrDefault(BattleNetRegion.getRegion(regionStr), Collections.emptyList());
+	}
+
+	private void cleanupUserClients() {
+		userClients.forEach((region, list) -> list.removeIf(client -> !client.isAccessTokenValid()));
 	}
 }
