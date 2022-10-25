@@ -10,7 +10,7 @@ import eu._4fh.abstract_bnet_api.restclient.AbstractBattleNetRequest;
 import eu._4fh.abstract_bnet_api.restclient.BattleNetRequestType;
 import eu._4fh.abstract_bnet_api.restclient.data.BattleNetWowCharacter;
 
-public class BNetGuildMembersRequest extends AbstractBattleNetRequest<List<BattleNetWowCharacter>> {
+public class BattleNetGuildMembersRequest extends AbstractBattleNetRequest<List<BattleNetWowCharacter>> {
 
 	@Override
 	protected List<BattleNetWowCharacter> convertJsonToObject(JSONObject guildObj) {
