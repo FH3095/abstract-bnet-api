@@ -24,7 +24,6 @@ dependencies {
     implementation("org.glassfish.jersey.media:jersey-media-json-jackson:2.37")
     implementation("org.dmfs:oauth2-essentials:0.18")
     implementation("org.dmfs:httpurlconnection-executor:0.20")
-	compileOnly("javax.servlet:javax.servlet-api:4.0.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
