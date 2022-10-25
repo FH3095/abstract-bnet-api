@@ -3,6 +3,9 @@ package eu._4fh.abstract_bnet_api.restclient;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.dmfs.httpessentials.client.HttpRequest;
 import org.dmfs.httpessentials.exceptions.ProtocolError;
@@ -37,11 +40,19 @@ public class RequestExecutor {
 	public <T> T executeRequest(final String path, final AbstractBattleNetRequest<T> request) {
 		try {
 			final BattleNetRegion region = client.getRegion();
+
+			final List<String> queryParts = new ArrayList<>(2);
+			final BattleNetRequestType requestType = request.getRequestType();
+			if (!requestType.battleNetNamespacePrefix.isEmpty()) {
+				queryParts.add("namespace=" + requestType.battleNetNamespacePrefix + "-" + region.namespaceName);
+			}
+			if (requestType.withLocale) {
+				queryParts.add("locale=" + locale);
+			}
+
 			final URI apiUri = URI.create(region.apiUrl);
 			final URI uri = new URI(apiUri.getScheme(), apiUri.getAuthority(), path,
-					"namespace=" + request.getNamespacePrefix() + "-" + region.toString()
-							+ (request.needsLocale() ? "&locale=" + locale : ""),
-					null);
+					queryParts.stream().collect(Collectors.joining("&")), null);
 			final HttpRequest<T> authenticatedRequest = new BearerAuthenticatedRequest<>(request,
 					client.getAccessToken());
 			return executor.execute(uri, authenticatedRequest);

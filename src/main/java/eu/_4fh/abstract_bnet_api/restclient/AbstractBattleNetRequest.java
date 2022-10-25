@@ -48,17 +48,10 @@ public abstract class AbstractBattleNetRequest<T> implements HttpRequest<T> {
 	protected abstract T convertJsonToObject(final JSONObject obj);
 
 	/**
-	 * This has to return the namespace prefix for the battle-net api. Currently
-	 * battle-net has the namespace-prefixes: static, dynamic and profile. This
-	 * has to return the one according to this request.
+	 * This has to return the request type, which is combined of the namespace
+	 * and the information, if a locale is required.
 	 */
-	protected abstract String getNamespacePrefix();
-
-	/**
-	 * If this returns true, the {@link RequestExecutor} will add the locale
-	 * automatically to the url.
-	 */
-	protected abstract boolean needsLocale();
+	protected abstract BattleNetRequestType getRequestType();
 
 	@Override
 	public HttpResponseHandler<T> responseHandler(HttpResponse response)

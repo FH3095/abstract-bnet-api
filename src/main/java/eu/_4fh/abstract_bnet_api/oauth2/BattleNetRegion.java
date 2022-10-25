@@ -15,13 +15,14 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  */
 @DefaultAnnotation(NonNull.class)
 public enum BattleNetRegion {
-	US("https://oauth.battle.net", "https://us.api.blizzard.com", Locale.US, new Locale("es", "MX"),
+	US("us", "https://oauth.battle.net", "https://us.api.blizzard.com", Locale.US, new Locale("es", "MX"),
 			new Locale("pt", "BR")),
-	EU("https://oauth.battle.net", "https://eu.api.blizzard.com", Locale.UK, new Locale("es", "ES"), Locale.FRANCE,
-			new Locale("ru", "RU"), Locale.GERMANY, new Locale("pt", "PT"), Locale.ITALY),
-	KR("https://oauth.battle.net", "https://kr.api.blizzard.com", Locale.KOREA),
-	TW("https://oauth.battle.net", "https://tw.api.blizzard.com", Locale.TAIWAN);
+	EU("eu", "https://oauth.battle.net", "https://eu.api.blizzard.com", Locale.UK, new Locale("es", "ES"),
+			Locale.FRANCE, new Locale("ru", "RU"), Locale.GERMANY, new Locale("pt", "PT"), Locale.ITALY),
+	KR("kr", "https://oauth.battle.net", "https://kr.api.blizzard.com", Locale.KOREA),
+	TW("tw", "https://oauth.battle.net", "https://tw.api.blizzard.com", Locale.TAIWAN);
 
+	public final String namespaceName;
 	public final String oauthUrl;
 	public final String apiUrl;
 	public final Set<Locale> locales;
@@ -41,7 +42,9 @@ public enum BattleNetRegion {
 		}
 	}
 
-	private BattleNetRegion(final String oauthUrl, final String apiUrl, final Locale... locales) {
+	private BattleNetRegion(final String namespaceName, final String oauthUrl, final String apiUrl,
+			final Locale... locales) {
+		this.namespaceName = namespaceName;
 		this.oauthUrl = oauthUrl;
 		this.apiUrl = apiUrl;
 		final Set<Locale> localesSet = ConcurrentHashMap.newKeySet(locales.length);
@@ -51,10 +54,5 @@ public enum BattleNetRegion {
 
 	public boolean isAllowedLocale(final String locale) {
 		return locales.contains(Locale.forLanguageTag(locale));
-	}
-
-	@Override
-	public String toString() {
-		return name().toLowerCase(Locale.ROOT);
 	}
 }
