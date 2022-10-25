@@ -3,12 +3,15 @@ package eu._4fh.abstract_bnet_api.oauth2;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 import org.dmfs.httpessentials.client.HttpRequestExecutor;
 import org.dmfs.httpessentials.exceptions.ProtocolError;
 import org.dmfs.httpessentials.exceptions.ProtocolException;
@@ -26,9 +29,11 @@ import org.dmfs.rfc3986.encoding.Precoded;
 import org.dmfs.rfc3986.uris.LazyUri;
 import org.dmfs.rfc5545.Duration;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu._4fh.abstract_bnet_api.restclient.RequestExecutor;
+import eu._4fh.abstract_bnet_api.util.Pair;
 
 /**
  * This class can be used to get relevant BattleNetClients to create
@@ -43,6 +48,7 @@ public class BattleNetClients {
 	 * class is intentionally Serializable to make it possible to remember this
 	 * values somewhere.
 	 */
+	@DefaultAnnotation(NonNull.class)
 	public static class UserAuthorizationState implements Serializable {
 		private static final long serialVersionUID = -3419942940565666963L;
 
@@ -59,6 +65,15 @@ public class BattleNetClients {
 
 		public URI getAuthorizationUrl() {
 			return authoriazionUrl;
+		}
+	}
+
+	@DefaultAnnotation(NonNull.class)
+	public static class UserAuthorizationError extends Exception {
+		private static final long serialVersionUID = 5963598473840020759L;
+
+		public UserAuthorizationError(final String message, final @CheckForNull String description) {
+			super(message + (description != null && !description.isBlank() ? " {" + description + "}" : ""));
 		}
 	}
 
@@ -119,7 +134,13 @@ public class BattleNetClients {
 	/**
 	 * Finishes the authorization process.
 	 */
-	public BattleNetClient finishUserAuthorizationProcess(final UserAuthorizationState state, final String answerUrl) {
+	public BattleNetClient finishUserAuthorizationProcess(final UserAuthorizationState state, final String answerUrl)
+			throws UserAuthorizationError {
+		final Pair<String, String> error = getErrorFromUrl(answerUrl);
+		if (error != null) {
+			throw new UserAuthorizationError(error.value1, error.value2);
+		}
+
 		try {
 			final BattleNetRegion region = BattleNetRegion.getRegion(state.regionStr);
 			final HttpRequestExecutor executor = new HttpUrlConnectionExecutor();
@@ -130,8 +151,37 @@ public class BattleNetClients {
 			final UserClient client = new UserClient(region, token);
 			userClients.computeIfAbsent(region, r -> Collections.synchronizedList(new LinkedList<>())).add(client);
 			cleanupUserClients();
-			return new UserClient(region, token);
+			return client;
 		} catch (ProtocolError | ProtocolException | IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private @CheckForNull Pair<String, String> getErrorFromUrl(final String url) {
+		try {
+			final List<NameValuePair> values = new URIBuilder(url).getQueryParams();
+			@CheckForNull
+			String error = null;
+			@CheckForNull
+			String errorDescription = null;
+			for (final NameValuePair pair : values) {
+				if (pair.getName() == null || pair.getName().isBlank() || pair.getValue() == null
+						|| pair.getValue().isBlank()) {
+					continue;
+				}
+				if ("error".equalsIgnoreCase(pair.getName()) && error == null) {
+					error = pair.getValue();
+				} else if ("error_description".equalsIgnoreCase(pair.getName()) && errorDescription == null) {
+					errorDescription = pair.getValue();
+				}
+			}
+
+			if (error == null) {
+				return null;
+			} else {
+				return new Pair<>(error, errorDescription);
+			}
+		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
 	}

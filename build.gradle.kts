@@ -19,6 +19,7 @@ java {
 dependencies {
 	implementation("com.github.spotbugs:spotbugs-annotations:4.7.3")
 	implementation("org.json:json:20220924")
+	implementation("org.apache.httpcomponents.core5:httpcore5:5.1.4")
     implementation("org.glassfish.jersey.core:jersey-client:2.37")
     implementation("org.glassfish.jersey.media:jersey-media-json-jackson:2.37")
     implementation("org.dmfs:oauth2-essentials:0.18")
