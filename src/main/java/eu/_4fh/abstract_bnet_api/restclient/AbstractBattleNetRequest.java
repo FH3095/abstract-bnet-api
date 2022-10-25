@@ -64,7 +64,8 @@ public abstract class AbstractBattleNetRequest<T> implements HttpRequest<T> {
 		}
 
 		final String responseString = new StringResponseHandler("UTF-8").handleResponse(response);
-		log.log(Level.FINEST, "Got battle.net response: {0}", responseString);
+		log.log(Level.FINEST, "Queried {0} and got {1}",
+				new Object[] { response.requestUri().toString(), responseString });
 		try {
 			JSONObject obj = new JSONObject(responseString);
 			return new HttpResponseHandler<T>() {

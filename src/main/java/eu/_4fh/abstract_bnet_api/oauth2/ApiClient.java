@@ -68,9 +68,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 		final OAuth2AccessToken oAuthToken = new ClientCredentialsGrant(getClient(), new BasicScope(oAuthScope))
 				.accessToken(new HttpUrlConnectionExecutor());
 		Objects.requireNonNull(oAuthToken, "Received no new token");
-		log.log(Level.INFO, "Requested new token, got: {0} as {1} for {2} valid until {3}",
+		log.log(Level.INFO, "Requested new api-client token, got: {0} as {1} for {2} valid until {3} in region {4}",
 				new Object[] { oAuthToken.accessToken(), oAuthToken.tokenType(), oAuthToken.scope().toString(),
-						oAuthToken.expirationDate().toString() });
+						oAuthToken.expirationDate().toString(), region.toString() });
 		return oAuthToken;
 	}
 }
