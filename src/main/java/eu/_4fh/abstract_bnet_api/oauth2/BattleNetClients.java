@@ -80,11 +80,11 @@ public class BattleNetClients {
 	private final Map<BattleNetRegion, ApiClient> regionClients = new ConcurrentHashMap<>();
 	private final Map<BattleNetRegion, List<BattleNetClient>> userClients = new ConcurrentHashMap<>();
 
-	public final String oAuthApiKey;
-	public final String oAuthApiSecret;
-	public final int oAuthDefaultTokenDuration;
-	public final String oAuthAuthRedirectTarget;
-	public final String oAuthScope;
+	private final String oAuthApiKey;
+	private final String oAuthApiSecret;
+	private final int oAuthDefaultTokenDuration;
+	private final String oAuthAuthRedirectTarget;
+	private final String oAuthScope;
 
 	public BattleNetClients(final String oAuthApiKey, final String oAuthApiSecret, final int oAuthDefaultTokenDuration,
 			final String oAuthRedirectTarget, final String oAuthScope) {
