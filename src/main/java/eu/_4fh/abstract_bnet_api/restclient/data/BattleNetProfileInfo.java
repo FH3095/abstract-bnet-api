@@ -17,7 +17,7 @@ public class BattleNetProfileInfo {
 
 	@Override
 	public String toString() {
-		return "BattleNetProfileInfo [" + battleTag + "(" + id + ")]";
+		return "BattleNetProfileInfo [" + battleTag + " (" + id + ")]";
 	}
 
 	@Override

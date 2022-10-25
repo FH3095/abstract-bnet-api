@@ -43,14 +43,14 @@ public class RequestExecutor {
 
 			final List<String> queryParts = new ArrayList<>(2);
 			final BattleNetRequestType requestType = request.getRequestType();
-			if (!requestType.battleNetNamespacePrefix.isEmpty()) {
+			if (!requestType.battleNetNamespacePrefix.isBlank()) {
 				queryParts.add("namespace=" + requestType.battleNetNamespacePrefix + "-" + region.namespaceName);
 			}
 			if (requestType.withLocale) {
 				queryParts.add("locale=" + locale);
 			}
 
-			final URI apiUri = URI.create(region.apiUrl);
+			final URI apiUri = URI.create(requestType.usesOAuthUrl ? region.oauthUrl : region.apiUrl);
 			final URI uri = new URI(apiUri.getScheme(), apiUri.getAuthority(), path,
 					queryParts.stream().collect(Collectors.joining("&")), null);
 			final HttpRequest<T> authenticatedRequest = new BearerAuthenticatedRequest<>(request,
