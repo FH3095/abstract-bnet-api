@@ -28,12 +28,10 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 	private final BattleNetRegion region;
 	private final OAuth2Client client;
 	private @CheckForNull OAuth2AccessToken token;
-	private final String oAuthScope;
 
-	public ApiClient(final BattleNetRegion region, final OAuth2Client client, final String oAuthScope) {
+	public ApiClient(final BattleNetRegion region, final OAuth2Client client) {
 		this.region = region;
 		this.client = client;
-		this.oAuthScope = oAuthScope;
 		token = null;
 	}
 
@@ -65,8 +63,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 	}
 
 	private OAuth2AccessToken createAccessToken() throws IOException, ProtocolError, ProtocolException {
-		final OAuth2AccessToken oAuthToken = new ClientCredentialsGrant(getClient(), new BasicScope(oAuthScope))
-				.accessToken(new HttpUrlConnectionExecutor());
+		final OAuth2AccessToken oAuthToken = new ClientCredentialsGrant(getClient(),
+				new BasicScope(BattleNetClients.OAUTH_SCOPE)).accessToken(new HttpUrlConnectionExecutor());
 		Objects.requireNonNull(oAuthToken, "Received no new token");
 		log.log(Level.INFO, "Requested new api-client token, got: {0} as {1} for {2} valid until {3} in region {4}",
 				new Object[] { oAuthToken.accessToken(), oAuthToken.tokenType(), oAuthToken.scope().toString(),

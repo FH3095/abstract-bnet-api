@@ -22,7 +22,7 @@ dependencies {
 	implementation("org.apache.httpcomponents.core5:httpcore5:5.1.4")
     implementation("org.glassfish.jersey.core:jersey-client:2.37")
     implementation("org.glassfish.jersey.media:jersey-media-json-jackson:2.37")
-    implementation("org.dmfs:oauth2-essentials:0.18")
+    api("org.dmfs:oauth2-essentials:0.18")
     implementation("org.dmfs:httpurlconnection-executor:0.20")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")

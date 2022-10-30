@@ -77,6 +77,8 @@ public class BattleNetClients {
 		}
 	}
 
+	/*package*/ static final String[] OAUTH_SCOPE = { "wow.profile" };
+
 	private final Map<BattleNetRegion, ApiClient> regionClients = new ConcurrentHashMap<>();
 	private final Map<BattleNetRegion, List<BattleNetClient>> userClients = new ConcurrentHashMap<>();
 
@@ -84,15 +86,13 @@ public class BattleNetClients {
 	private final String oAuthApiSecret;
 	private final int oAuthDefaultTokenDuration;
 	private final String oAuthAuthRedirectTarget;
-	private final String oAuthScope;
 
 	public BattleNetClients(final String oAuthApiKey, final String oAuthApiSecret, final int oAuthDefaultTokenDuration,
-			final String oAuthRedirectTarget, final String oAuthScope) {
+			final String oAuthRedirectTarget) {
 		this.oAuthApiKey = oAuthApiKey;
 		this.oAuthApiSecret = oAuthApiSecret;
 		this.oAuthDefaultTokenDuration = oAuthDefaultTokenDuration;
 		this.oAuthAuthRedirectTarget = oAuthRedirectTarget;
-		this.oAuthScope = oAuthScope;
 	}
 
 	/**
@@ -104,7 +104,7 @@ public class BattleNetClients {
 	}
 
 	private ApiClient getApiClient(final BattleNetRegion region) {
-		return regionClients.computeIfAbsent(region, r -> new ApiClient(region, createClient(r), oAuthScope));
+		return regionClients.computeIfAbsent(region, r -> new ApiClient(region, createClient(r)));
 	}
 
 	private OAuth2Client createClient(final BattleNetRegion region) {
@@ -127,7 +127,7 @@ public class BattleNetClients {
 	 */
 	public UserAuthorizationState startUserAuthorizationProcess(final String regionStr) {
 		final OAuth2InteractiveGrant grant = new AuthorizationCodeGrant(
-				getApiClient(BattleNetRegion.getRegion(regionStr)).getClient(), new BasicScope(oAuthScope));
+				getApiClient(BattleNetRegion.getRegion(regionStr)).getClient(), new BasicScope(OAUTH_SCOPE));
 		return new UserAuthorizationState(regionStr, grant.state(), grant.authorizationUrl());
 	}
 
