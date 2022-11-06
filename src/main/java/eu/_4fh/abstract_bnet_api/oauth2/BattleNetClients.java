@@ -99,11 +99,11 @@ public class BattleNetClients {
 	 * Return a client for access to the battle net api. These client can only
 	 * be used to access data, that does not require an authorization code flow.
 	 */
-	public BattleNetClient getClient(final String regionStr) {
-		return getApiClient(BattleNetRegion.getRegion(regionStr));
+	public BattleNetClient getApiClient(final BattleNetRegion region) {
+		return getApiClientInternal(region);
 	}
 
-	private ApiClient getApiClient(final BattleNetRegion region) {
+	private ApiClient getApiClientInternal(final BattleNetRegion region) {
 		return regionClients.computeIfAbsent(region, r -> new ApiClient(region, createClient(r)));
 	}
 
@@ -125,10 +125,10 @@ public class BattleNetClients {
 	 * The client should be redirected to the url given in
 	 * {@link UserAuthorizationState#getAuthorizationUrl()}.
 	 */
-	public UserAuthorizationState startUserAuthorizationProcess(final String regionStr) {
-		final OAuth2InteractiveGrant grant = new AuthorizationCodeGrant(
-				getApiClient(BattleNetRegion.getRegion(regionStr)).getClient(), new BasicScope(OAUTH_SCOPE));
-		return new UserAuthorizationState(regionStr, grant.state(), grant.authorizationUrl());
+	public UserAuthorizationState startUserAuthorizationProcess(final BattleNetRegion region) {
+		final OAuth2InteractiveGrant grant = new AuthorizationCodeGrant(getApiClientInternal(region).getClient(),
+				new BasicScope(OAUTH_SCOPE));
+		return new UserAuthorizationState(region.getRegionName(), grant.state(), grant.authorizationUrl());
 	}
 
 	/**
@@ -144,7 +144,7 @@ public class BattleNetClients {
 		try {
 			final BattleNetRegion region = BattleNetRegion.getRegion(state.regionStr);
 			final HttpRequestExecutor executor = new HttpUrlConnectionExecutor();
-			final OAuth2InteractiveGrant grant = state.grantState.grant(getApiClient(region).getClient());
+			final OAuth2InteractiveGrant grant = state.grantState.grant(getApiClientInternal(region).getClient());
 			final OAuth2AccessToken token = grant.withRedirect(new LazyUri(new Precoded(answerUrl)))
 					.accessToken(executor);
 
@@ -186,9 +186,9 @@ public class BattleNetClients {
 		}
 	}
 
-	public List<BattleNetClient> getUserClients(final String regionStr) {
+	public List<BattleNetClient> getUserClients(final BattleNetRegion region) {
 		cleanupUserClients();
-		return userClients.getOrDefault(BattleNetRegion.getRegion(regionStr), Collections.emptyList());
+		return userClients.getOrDefault(region, Collections.emptyList());
 	}
 
 	private void cleanupUserClients() {

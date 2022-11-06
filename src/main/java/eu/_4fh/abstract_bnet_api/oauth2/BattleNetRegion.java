@@ -42,8 +42,7 @@ public enum BattleNetRegion {
 		}
 	}
 
-	private BattleNetRegion(final String namespaceName, final String oauthUrl, final String apiUrl,
-			final Locale... locales) {
+	BattleNetRegion(final String namespaceName, final String oauthUrl, final String apiUrl, final Locale... locales) {
 		this.namespaceName = namespaceName;
 		this.oauthUrl = oauthUrl;
 		this.apiUrl = apiUrl;
@@ -54,5 +53,9 @@ public enum BattleNetRegion {
 
 	public boolean isAllowedLocale(final String locale) {
 		return locales.contains(Locale.forLanguageTag(locale));
+	}
+
+	public String getRegionName() {
+		return name();
 	}
 }
