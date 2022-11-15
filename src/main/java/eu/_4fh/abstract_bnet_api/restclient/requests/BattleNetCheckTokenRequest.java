@@ -7,15 +7,28 @@ import java.util.Set;
 import org.dmfs.httpessentials.HttpMethod;
 import org.dmfs.httpessentials.client.HttpRequestEntity;
 import org.dmfs.httpessentials.entities.XWwwFormUrlEncodedEntity;
+import org.dmfs.httpessentials.exceptions.ProtocolException;
 import org.dmfs.jems.pair.elementary.ValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import eu._4fh.abstract_bnet_api.oauth2.BattleNetClient;
 import eu._4fh.abstract_bnet_api.restclient.AbstractBattleNetRequest;
 import eu._4fh.abstract_bnet_api.restclient.BattleNetRequestType;
 
 public class BattleNetCheckTokenRequest extends AbstractBattleNetRequest<Set<String>> {
+	public static final String API_PATH = "/oauth/check_token";
+
 	private final CharSequence token;
+
+	public BattleNetCheckTokenRequest(final BattleNetClient client) {
+		super();
+		try {
+			this.token = client.getAccessToken().accessToken();
+		} catch (ProtocolException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public BattleNetCheckTokenRequest(final CharSequence token) {
 		super();

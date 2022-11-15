@@ -7,6 +7,8 @@ import eu._4fh.abstract_bnet_api.restclient.BattleNetRequestType;
 import eu._4fh.abstract_bnet_api.restclient.data.BattleNetProfileInfo;
 
 public class BattleNetProfileInfoRequest extends AbstractBattleNetRequest<BattleNetProfileInfo> {
+	public static final String API_PATH = "/oauth/userinfo";
+
 	@Override
 	protected BattleNetProfileInfo convertJsonToObject(JSONObject obj) {
 		return new BattleNetProfileInfo(obj.getLong("id"), obj.getString("battletag"));

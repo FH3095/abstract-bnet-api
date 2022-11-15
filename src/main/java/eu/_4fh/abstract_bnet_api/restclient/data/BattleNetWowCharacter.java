@@ -5,25 +5,28 @@ import java.util.Objects;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 public class BattleNetWowCharacter {
+	public final long id;
 	public final String name;
 	public final String realmSlug;
-	public final @CheckForNull Integer rank;
+	public final @CheckForNull Byte guildRank;
 
-	public BattleNetWowCharacter(final String name, final String realmSlug, final @CheckForNull Integer rank) {
+	public BattleNetWowCharacter(final long id, final String name, final String realmSlug,
+			final @CheckForNull Byte guildRank) {
+		this.id = id;
 		this.name = name;
 		this.realmSlug = realmSlug;
-		this.rank = rank;
+		this.guildRank = guildRank;
 	}
 
 	@Override
 	public String toString() {
-		return "BattleNetWowCharacter [" + name + "-" + realmSlug + " rank="
-				+ (rank == null ? "unknown" : rank.toString()) + "]";
+		return "BattleNetWowCharacter [" + name + "-" + realmSlug + " (" + id + ") rank="
+				+ (guildRank == null ? "unknown" : guildRank.toString()) + "]";
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, rank, realmSlug);
+		return Objects.hash(guildRank, id, name, realmSlug);
 	}
 
 	@Override
@@ -35,7 +38,7 @@ public class BattleNetWowCharacter {
 			return false;
 		}
 		BattleNetWowCharacter other = (BattleNetWowCharacter) obj;
-		return Objects.equals(name, other.name) && Objects.equals(rank, other.rank)
+		return Objects.equals(guildRank, other.guildRank) && id == other.id && Objects.equals(name, other.name)
 				&& Objects.equals(realmSlug, other.realmSlug);
 	}
 }

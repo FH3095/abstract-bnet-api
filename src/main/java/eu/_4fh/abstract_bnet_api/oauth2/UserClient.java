@@ -24,8 +24,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 		try {
 			log.log(Level.INFO,
 					"Requested new user-client token, got: {0} as {1} for {2} valid until {3} in region {4}",
-					new Object[] { token.accessToken(), token.tokenType(), token.scope().toString(),
-							token.expirationDate().toString(), region.toString() });
+					new Object[] { token.accessToken(), token.tokenType(), token.scope(), token.expirationDate(),
+							region });
 		} catch (ProtocolException e) {
 			// Ignore only logging
 		}

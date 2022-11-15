@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hc.core5.http.NameValuePair;
@@ -33,6 +36,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import eu._4fh.abstract_bnet_api.restclient.RequestExecutor;
+import eu._4fh.abstract_bnet_api.restclient.requests.BattleNetCheckTokenRequest;
 import eu._4fh.abstract_bnet_api.util.Pair;
 
 /**
@@ -74,6 +78,20 @@ public class BattleNetClients {
 
 		public UserAuthorizationError(final String message, final @CheckForNull String description) {
 			super(message + (description != null && !description.isBlank() ? " {" + description + "}" : ""));
+		}
+	}
+
+	@DefaultAnnotation(NonNull.class)
+	public static class InvalidScopeError extends Exception {
+		private static final long serialVersionUID = -8463470986999518800L;
+
+		public final String expectedScope;
+		public final String actualScope;
+
+		public InvalidScopeError(final String expectedScope, final String actualScope) {
+			super("Unexpected scope " + actualScope + " expected " + expectedScope);
+			this.expectedScope = expectedScope;
+			this.actualScope = actualScope;
 		}
 	}
 
@@ -135,7 +153,7 @@ public class BattleNetClients {
 	 * Finishes the authorization process.
 	 */
 	public BattleNetClient finishUserAuthorizationProcess(final UserAuthorizationState state, final String answerUrl)
-			throws UserAuthorizationError {
+			throws UserAuthorizationError, InvalidScopeError {
 		final Pair<String, String> error = getErrorFromUrl(answerUrl);
 		if (error != null) {
 			throw new UserAuthorizationError(error.value1, error.value2);
@@ -149,6 +167,14 @@ public class BattleNetClients {
 					.accessToken(executor);
 
 			final UserClient client = new UserClient(region, token);
+
+			final Set<String> actualScopes = new RequestExecutor(client, region.locales.iterator().next().toString())
+					.executeRequest(BattleNetCheckTokenRequest.API_PATH,
+							new BattleNetCheckTokenRequest(token.accessToken()));
+			if (!actualScopes.containsAll(Arrays.asList(OAUTH_SCOPE))) {
+				throw new InvalidScopeError(Arrays.toString(OAUTH_SCOPE), actualScopes.toString());
+			}
+
 			userClients.computeIfAbsent(region, r -> Collections.synchronizedList(new LinkedList<>())).add(client);
 			cleanupUserClients();
 			return client;
@@ -188,7 +214,7 @@ public class BattleNetClients {
 
 	public List<BattleNetClient> getUserClients(final BattleNetRegion region) {
 		cleanupUserClients();
-		return userClients.getOrDefault(region, Collections.emptyList());
+		return new ArrayList<>(userClients.getOrDefault(region, Collections.emptyList()));
 	}
 
 	private void cleanupUserClients() {

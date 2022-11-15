@@ -2,9 +2,9 @@ package eu._4fh.abstract_bnet_api.oauth2;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -46,9 +46,7 @@ public enum BattleNetRegion {
 		this.namespaceName = namespaceName;
 		this.oauthUrl = oauthUrl;
 		this.apiUrl = apiUrl;
-		final Set<Locale> localesSet = ConcurrentHashMap.newKeySet(locales.length);
-		localesSet.addAll(Arrays.asList(locales));
-		this.locales = Collections.unmodifiableSet(localesSet);
+		this.locales = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(locales)));
 	}
 
 	public boolean isAllowedLocale(final String locale) {
